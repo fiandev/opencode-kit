@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-13
+
+### Added
+
+- `fallback_model` is now sent with requests from every provider, so the router can recover when the current model fails regardless of the model in use.
+- Shipped agents support read-only introspection and test/lint/build commands across Make/CMake, Cargo, Go, Maven/Gradle, .NET, Python, Ruby/PHP, Elixir, Swift/Zig, Deno, and Bazel projects.
+
+### Changed
+
+- Bash permission allowlists for shipped agents now cover arbitrary language toolchains instead of only Node-based commands, and use broad `ask` fallbacks so unknown tooling is not hard-denied.
+- `PACKAGE_NAME` and `CURRENT_VERSION` now derive from `package.json`; bumping the manifest is enough for the update check.
+- Tester agents may no longer run `npm run build` / `bun run build`.
+
+### Fixed
+
+- `chat.params` now compares the session model by `id` as well as `providerID`, so the fallback is only skipped when the session already runs the fallback model.
+
 ## [2.0.1] - 2026-11-09
 
 ### Fixed
@@ -80,7 +97,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Worktree cleanup/done/blocked tools use direct filesystem and command execution instead of shell interpolation.
 - Read-only agents can no longer create or move tags.
 
-[Unreleased]: https://github.com/fiandev/opencode-kit/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/fiandev/opencode-kit/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/fiandev/opencode-kit/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/fiandev/opencode-kit/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/fiandev/opencode-kit/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/fiandev/opencode-kit/compare/v1.1.0...v1.2.0
