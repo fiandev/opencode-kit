@@ -27,50 +27,127 @@ permission:
     "tree *": allow
     "file *": allow
     "stat *": allow
+    "diff *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "jq *": allow
+    "sed -n *": allow
+    "test *": allow
     "git status *": allow
     "git log *": allow
     "git diff *": allow
     "git show *": allow
     "git grep *": allow
-    "git branch *": allow
     "git rev-parse *": allow
+    "git rev-list *": allow
     "git ls-files *": allow
+    "git ls-tree *": allow
+    "git cat-file *": allow
+    "git show-ref *": allow
     "git blame *": allow
     "git describe *": allow
-    "git remote *": allow
+    "git merge-base *": allow
+    "git branch --list *": allow
+    "git branch -a *": allow
+    "git branch -v *": allow
+    "git branch -vv *": allow
+    "git tag --list *": allow
+    "git tag -l *": allow
+    "git remote -v *": allow
+    "git remote show *": allow
+    "git remote get-url *": allow
+    "git ls-remote *": allow
+    "git worktree list *": allow
+    "npm *": ask
+    "bun *": ask
+    "pnpm *": ask
+    "yarn *": ask
+    "node *": ask
+    "npx *": ask
+    "bunx *": ask
+    "python *": ask
+    "python3 *": ask
+    "pip *": ask
+    "poetry *": ask
+    "ruby *": ask
+    "php *": ask
+    "docker *": ask
+    "podman *": ask
+    "curl *": ask
+    "wget *": ask
+    "ssh *": ask
+    "make test *": allow
+    "make check *": allow
+    "make lint *": allow
+    "just test *": allow
+    "task test *": allow
+    "go test *": allow
+    "go vet *": allow
+    "golangci-lint *": allow
+    "cargo test *": allow
+    "cargo check *": allow
+    "cargo clippy *": allow
+    "cargo fmt --check *": allow
+    "pytest *": allow
+    "python -m pytest *": allow
+    "python3 -m pytest *": allow
+    "mvn test *": allow
+    "./mvnw test *": allow
+    "gradle test *": allow
+    "./gradlew test *": allow
+    "dotnet test *": allow
+    "rspec *": allow
+    "rake test *": allow
+    "rake spec *": allow
+    "mix test *": allow
+    "phpunit *": allow
+    "ctest *": allow
+    "meson test *": allow
+    "bazel test *": allow
+    "deno test *": allow
+    "swift test *": allow
+    "zig build test *": allow
+    "ruff check *": allow
+    "mypy *": allow
+    "eslint *": allow
+    "prettier --check *": allow
+    "shellcheck *": allow
+    "hadolint *": allow
+    "tsc *": allow
+    "npx tsc *": allow
+    "bunx tsc *": allow
     "node --check *": allow
     "npm test *": allow
     "npm run test *": allow
     "npm run lint *": allow
-    "npm run build *": allow
     "npm run typecheck *": allow
     "npm run type-check *": allow
     "bun test *": allow
     "bun run test *": allow
     "bun run lint *": allow
-    "bun run build *": allow
     "bun run typecheck *": allow
-    "npx tsc *": allow
-    "bunx tsc *": allow
-    "tsc *": allow
-    "pytest *": allow
-    "go test *": allow
-    "cargo test *": allow
+    "pnpm test *": allow
+    "pnpm run test *": allow
+    "yarn test *": allow
+    "yarn run test *": allow
+    "npm run build *": deny
+    "bun run build *": deny
     "npm install *": ask
     "npm ci *": ask
-    "npm start *": ask
-    "npm run dev *": ask
     "bun install *": ask
-    "bun run dev *": ask
     "pnpm install *": ask
     "yarn install *": ask
-    "git remote add *": deny
-    "git remote remove *": deny
-    "git remote set *": deny
-    "git branch -d *": deny
-    "git branch -D *": deny
-    "git branch -m *": deny
-
+    "pip install *": ask
+    "poetry install *": ask
+    "uv pip install *": ask
+    "uv sync *": ask
+    "composer install *": ask
+    "bundle install *": ask
+    "gem install *": ask
+    "cargo install *": ask
+    "go install *": ask
+    "dotnet restore *": ask
 ---
 
 ## Communication Protocol

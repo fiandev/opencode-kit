@@ -51,11 +51,9 @@ export const MultiAgentDevPlugin = Plugin.define({
 
     const chatParams = hooks["chat.params"]
     if (chatParams) {
-      await ctx.session.hook(
-        "context",
-        (event) => chatParams({ model: event.model }, event),
-        { providerID: "opencode-go" },
-      )
+      // Unscoped: every provider request carries the fallback, so the router can
+      // switch models when the current one fails.
+      await ctx.session.hook("context", (event) => chatParams({ model: event.model }, event))
     }
 
     const controller = new AbortController()

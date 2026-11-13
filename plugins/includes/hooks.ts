@@ -32,12 +32,14 @@ export const createPluginHooks = async ({ directory, log }: { directory: string;
     },
 
     // Send the fallback with each request so the router can recover automatically
+    // when the current model fails, whatever model the session is using.
     "chat.params": async (
-      input: { model: { providerID: string } },
+      input: { model: { providerID: string; id?: string } },
       output: { options: Record<string, unknown> },
     ) => {
-      if (input.model.providerID !== "opencode-go") return
-      output.options.fallback_model = FALLBACK_MODEL
+      const current = input.model.id ? `${input.model.providerID}/${input.model.id}` : undefined
+      if (current === FALLBACK_MODEL) return
+      output.options.fallback_model ??= FALLBACK_MODEL
     },
 
     // Enforce agent constraints before tool execution

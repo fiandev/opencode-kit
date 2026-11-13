@@ -25,24 +25,62 @@ permission:
     "tree *": allow
     "file *": allow
     "stat *": allow
+    "diff *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "jq *": allow
+    "sed -n *": allow
+    "test *": allow
     "git status *": allow
     "git log *": allow
     "git diff *": allow
     "git show *": allow
     "git grep *": allow
-    "git branch *": allow
     "git rev-parse *": allow
+    "git rev-list *": allow
     "git ls-files *": allow
+    "git ls-tree *": allow
+    "git cat-file *": allow
+    "git show-ref *": allow
     "git blame *": allow
     "git describe *": allow
-    "git remote *": allow
-    "git remote add *": deny
-    "git remote remove *": deny
-    "git remote set *": deny
-    "git branch -d *": deny
-    "git branch -D *": deny
-    "git branch -m *": deny
-
+    "git merge-base *": allow
+    "git branch --list *": allow
+    "git branch -a *": allow
+    "git branch -v *": allow
+    "git branch -vv *": allow
+    "git tag --list *": allow
+    "git tag -l *": allow
+    "git remote -v *": allow
+    "git remote show *": allow
+    "git remote get-url *": allow
+    "git ls-remote *": allow
+    "git worktree list *": allow
+    "go version": allow
+    "go list *": allow
+    "go env *": allow
+    "rustc --version": allow
+    "cargo metadata *": allow
+    "cargo tree *": allow
+    "node --version": allow
+    "npm ls *": allow
+    "bun pm ls *": allow
+    "python --version": allow
+    "python3 --version": allow
+    "pip list *": allow
+    "pip show *": allow
+    "poetry show *": allow
+    "uv tree *": allow
+    "ruby --version": allow
+    "gem list *": allow
+    "bundle list *": allow
+    "php --version": allow
+    "composer show *": allow
+    "java -version": allow
+    "mvn -v": allow
+    "gradle -v": allow
+    "dotnet --info": allow
 ---
 
 ## Communication Protocol

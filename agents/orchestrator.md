@@ -19,26 +19,39 @@ permission:
     "tree *": allow
     "file *": allow
     "stat *": allow
+    "diff *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "jq *": allow
+    "sed -n *": allow
+    "test *": allow
     "git status *": allow
     "git log *": allow
     "git diff *": allow
     "git show *": allow
     "git grep *": allow
-    "git branch *": allow
     "git rev-parse *": allow
+    "git rev-list *": allow
     "git ls-files *": allow
+    "git ls-tree *": allow
+    "git cat-file *": allow
+    "git show-ref *": allow
     "git blame *": allow
     "git describe *": allow
-    "git remote *": allow
+    "git merge-base *": allow
+    "git branch --list *": allow
+    "git branch -a *": allow
+    "git branch -v *": allow
+    "git branch -vv *": allow
     "git tag --list *": allow
     "git tag -l *": allow
+    "git remote -v *": allow
+    "git remote show *": allow
+    "git remote get-url *": allow
+    "git ls-remote *": allow
     "git worktree list *": allow
-    "bun run typecheck *": allow
-    "bun run test *": allow
-    "bun test *": allow
-    "npm run typecheck *": allow
-    "npm test *": allow
-    "npm run test *": allow
+    "git *": allow
     "git add *": ask
     "git commit *": ask
     "git push *": ask
@@ -57,27 +70,69 @@ permission:
     "git worktree remove *": ask
     "git worktree prune *": ask
     "gh *": ask
+    "make test *": allow
+    "make check *": allow
+    "just test *": allow
+    "task test *": allow
+    "go test *": allow
+    "cargo test *": allow
+    "pytest *": allow
+    "python -m pytest *": allow
+    "python3 -m pytest *": allow
+    "mvn test *": allow
+    "./mvnw test *": allow
+    "gradle test *": allow
+    "./gradlew test *": allow
+    "dotnet test *": allow
+    "rspec *": allow
+    "rake test *": allow
+    "mix test *": allow
+    "phpunit *": allow
+    "ctest *": allow
+    "meson test *": allow
+    "bazel test *": allow
+    "deno test *": allow
+    "swift test *": allow
+    "bun test *": allow
+    "bun run test *": allow
+    "bun run typecheck *": allow
+    "npm test *": allow
+    "npm run test *": allow
+    "npm run typecheck *": allow
+    "pnpm test *": allow
+    "yarn test *": allow
     "npm install *": ask
+    "npm ci *": ask
     "bun install *": ask
-    "git push --force *": deny
+    "pnpm install *": ask
+    "yarn install *": ask
+    "pip install *": ask
+    "poetry install *": ask
+    "uv pip install *": ask
+    "uv sync *": ask
+    "composer install *": ask
+    "bundle install *": ask
+    "gem install *": ask
+    "cargo install *": ask
+    "go install *": ask
+    "dotnet restore *": ask
+    "git worktree remove --force *": deny
+    "git push --force*": deny
     "git push -f *": deny
-    "git reset --hard *": deny
+    "git reset --hard*": deny
     "git clean -f *": deny
     "git clean -fd *": deny
+    "git clean -fdx *": deny
+    "git filter-branch *": deny
+    "git config *": deny
+    "git submodule *": deny
     "git tag -d *": deny
     "git tag -f *": deny
-    "git worktree remove --force *": deny
+    "git branch -d *": deny
+    "git branch -D *": deny
     "git remote add *": deny
     "git remote remove *": deny
     "git remote set *": deny
-    "git branch -d *": deny
-    "git branch -D *": deny
-    "git branch -m *": deny
-    "curl * | sh *": deny
-    "curl * | bash *": deny
-    "wget * | sh *": deny
-    "wget * | bash *": deny
-
 tools:
   worktree_create: true
   status: true

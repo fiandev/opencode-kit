@@ -1,6 +1,6 @@
 {
   "name": "@fiandev/opencode-kit",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "opencode kit to give super ability for your harness",
   "type": "module",
   "main": "dist/main.js",

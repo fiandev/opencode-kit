@@ -33,57 +33,158 @@ permission:
     "tree *": allow
     "file *": allow
     "stat *": allow
-    "git status *": allow
-    "git log *": allow
-    "git diff *": allow
-    "git show *": allow
-    "git grep *": allow
-    "git branch *": allow
-    "git rev-parse *": allow
-    "git ls-files *": allow
-    "git blame *": allow
-    "git describe *": allow
-    "git remote *": allow
-    "git add *": allow
-    "git commit *": allow
-    "bun run test *": allow
+    "diff *": allow
+    "sort *": allow
+    "uniq *": allow
+    "cut *": allow
+    "jq *": allow
+    "sed -n *": allow
+    "test *": allow
+    "mkdir *": allow
+    "touch *": allow
+    "cp *": allow
+    "mv *": allow
+    "ln *": allow
+    "rm *": ask
+    "rmdir *": ask
+    "chmod *": ask
+    "npm *": ask
+    "bun *": ask
+    "pnpm *": ask
+    "yarn *": ask
+    "node *": ask
+    "npx *": ask
+    "bunx *": ask
+    "python *": ask
+    "python3 *": ask
+    "pip *": ask
+    "poetry *": ask
+    "ruby *": ask
+    "php *": ask
+    "docker *": ask
+    "podman *": ask
+    "curl *": ask
+    "wget *": ask
+    "ssh *": ask
+    "make *": allow
+    "just *": allow
+    "task *": allow
+    "cmake *": allow
+    "ninja *": allow
+    "meson *": allow
+    "bazel *": allow
+    "ctest *": allow
+    "cargo *": allow
+    "go *": allow
+    "pytest *": allow
+    "python -m pytest *": allow
+    "python3 -m pytest *": allow
+    "python -m unittest *": allow
+    "python3 -m unittest *": allow
+    "ruff *": allow
+    "mypy *": allow
+    "black *": allow
+    "flake8 *": allow
+    "uv *": allow
+    "poetry run *": allow
+    "gcc *": allow
+    "g++ *": allow
+    "clang *": allow
+    "clang++ *": allow
+    "javac *": allow
+    "java *": allow
+    "kotlinc *": allow
+    "sbt *": allow
+    "mvn *": allow
+    "./mvnw *": allow
+    "gradle *": allow
+    "./gradlew *": allow
+    "dotnet *": allow
+    "composer *": allow
+    "phpunit *": allow
+    "bundle *": allow
+    "rspec *": allow
+    "rake *": allow
+    "mix *": allow
+    "deno *": allow
+    "zig *": allow
+    "swift *": allow
+    "stack *": allow
+    "cabal *": allow
+    "eslint *": allow
+    "prettier *": allow
+    "npm test *": allow
+    "npm run test *": allow
+    "npm run lint *": allow
+    "npm run build *": allow
+    "npm run typecheck *": allow
+    "npm run type-check *": allow
+    "npm run format *": allow
+    "npm run check *": allow
     "bun test *": allow
+    "bun run test *": allow
     "bun run lint *": allow
-    "bun run format *": allow
+    "bun run build *": allow
     "bun run typecheck *": allow
+    "bun run format *": allow
+    "bun run check *": allow
+    "pnpm test *": allow
+    "pnpm run test *": allow
+    "yarn test *": allow
+    "yarn run test *": allow
+    "tsc *": allow
     "npx tsc *": allow
     "bunx tsc *": allow
-    "tsc *": allow
     "node --check *": allow
-    "bun run build *": ask
-    "bun run dev *": ask
-    "bun install *": ask
     "npm install *": ask
+    "npm ci *": ask
+    "bun install *": ask
     "pnpm install *": ask
     "yarn install *": ask
+    "pip install *": ask
+    "poetry install *": ask
+    "uv pip install *": ask
+    "uv sync *": ask
+    "composer install *": ask
+    "bundle install *": ask
+    "gem install *": ask
+    "cargo install *": ask
+    "go install *": ask
+    "dotnet restore *": ask
+    "git *": allow
     "git push *": ask
+    "git fetch *": ask
+    "git pull *": ask
+    "git merge *": ask
+    "git rebase *": ask
     "git checkout *": ask
     "git switch *": ask
     "git reset *": ask
     "git stash *": ask
     "git clean *": ask
-    "git push --force *": deny
+    "git push --force*": deny
     "git push -f *": deny
-    "git reset --hard *": deny
+    "git reset --hard*": deny
     "git clean -f *": deny
     "git clean -fd *": deny
+    "git clean -fdx *": deny
     "git filter-branch *": deny
+    "git config *": deny
+    "git submodule *": deny
     "git tag -d *": deny
     "git tag -f *": deny
+    "git branch -d *": deny
     "git branch -D *": deny
     "git remote add *": deny
     "git remote remove *": deny
     "git remote set *": deny
-    "curl * | sh *": deny
-    "curl * | bash *": deny
-    "wget * | sh *": deny
-    "wget * | bash *": deny
-
+    "npm publish *": deny
+    "pnpm publish *": deny
+    "yarn publish *": deny
+    "bun publish *": deny
+    "cargo publish *": deny
+    "mvn deploy *": deny
+    "dotnet nuget push *": deny
 ---
 
 ## Communication Protocol

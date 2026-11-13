@@ -656,15 +656,15 @@ describe("reporting tools", () => {
     assert.equal((await status.execute({}, {}))?.content, "No worktrees")
 
     const contextHook = sessionHooks.get("context")!
-    assert.deepEqual(contextHook.options, { providerID: "opencode-go" })
-    const request = { model: { providerID: "opencode-go" }, options: {} as Record<string, unknown> }
+    assert.equal(contextHook.options, undefined)
+    const request = { model: { providerID: "opencode-go", id: "qwen3.8-flash" }, options: {} as Record<string, unknown> }
     await contextHook.callback(request)
     assert.equal(request.options.fallback_model, "opencode-go/deepseek-v4.1-flash-free")
 
     await cleanup?.()
   })
 
-  test("chat.params hook sends fallback_model only for opencode-go", async () => {
+  test("chat.params hook sends fallback_model for any provider", async () => {
     const { hooks } = await setupRepo()
     const opencodeGo = {
       temperature: 0,
@@ -675,10 +675,28 @@ describe("reporting tools", () => {
     }
     const other = { ...opencodeGo, options: {} as Record<string, unknown> }
 
-    await hooks["chat.params"]?.({ model: { providerID: "opencode-go" } } as never, opencodeGo as never)
-    await hooks["chat.params"]?.({ model: { providerID: "other" } } as never, other as never)
+    await hooks["chat.params"]?.({ model: { providerID: "opencode-go", id: "qwen3.8-flash" } } as never, opencodeGo as never)
+    await hooks["chat.params"]?.({ model: { providerID: "other", id: "some-model" } } as never, other as never)
 
     assert.equal(opencodeGo.options.fallback_model, "opencode-go/deepseek-v4.1-flash-free")
-    assert.equal(other.options.fallback_model, undefined)
+    assert.equal(other.options.fallback_model, "opencode-go/deepseek-v4.1-flash-free")
+  })
+
+  test("chat.params hook leaves an explicit fallback and the fallback model untouched", async () => {
+    const { hooks } = await setupRepo()
+    const explicit = { options: { fallback_model: "opencode-go/custom" } as Record<string, unknown> }
+    const alreadyFallback = { options: {} as Record<string, unknown> }
+
+    await hooks["chat.params"]?.(
+      { model: { providerID: "opencode-go", id: "qwen3.8-flash" } } as never,
+      explicit as never,
+    )
+    await hooks["chat.params"]?.(
+      { model: { providerID: "opencode-go", id: "deepseek-v4.1-flash-free" } } as never,
+      alreadyFallback as never,
+    )
+
+    assert.equal(explicit.options.fallback_model, "opencode-go/custom")
+    assert.equal(alreadyFallback.options.fallback_model, undefined)
   })
 })
