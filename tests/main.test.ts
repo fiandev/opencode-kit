@@ -19,6 +19,7 @@ type Tool = NonNullable<Hooks["tool"]>[string]
 /** Loosely-typed view of a tool so tests can call execute without Zod inference. */
 interface LooseTool {
   description: string
+  args?: any
   execute: (args: any, context?: any) => Promise<any>
 }
 
@@ -185,6 +186,14 @@ describe("agent permission enforcement", () => {
 
   test("scopes plan-writer to plan files while allowing writes", async () => {
     const { hooks } = await setupRepo()
+
+    // `execute` bypasses the tool's `args` schema, so assert the public contract
+    // (the agentType enum) explicitly — otherwise dropping the enum entry would
+    // still let this test pass.
+    const agentType = getTool(hooks, "register_agent").args.agentType
+    assert.equal(agentType.safeParse("plan-writer").success, true)
+    assert.equal(agentType.safeParse("not-an-agent").success, false)
+
     await register(hooks, {
       sessionID: "plan-writer",
       agentType: "plan-writer",
