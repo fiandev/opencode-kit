@@ -183,6 +183,34 @@ describe("agent permission enforcement", () => {
     )
   })
 
+  test("scopes plan-writer to plan files while allowing writes", async () => {
+    const { hooks } = await setupRepo()
+    await register(hooks, {
+      sessionID: "plan-writer",
+      agentType: "plan-writer",
+      allowedPaths: [".opencode/plans/**", ".gitignore"],
+    })
+
+    // Not read-only: it must be able to create plan files.
+    await assert.doesNotReject(
+      before(hooks, "write", "plan-writer", { filePath: ".opencode/plans/demo/1-setup.md" }),
+    )
+    await assert.doesNotReject(
+      before(hooks, "edit", "plan-writer", { filePath: ".opencode/plans/demo/1-setup.md" }),
+    )
+    await assert.doesNotReject(before(hooks, "edit", "plan-writer", { filePath: ".gitignore" }))
+
+    // Everything outside the plan scope stays blocked.
+    await assert.rejects(
+      before(hooks, "write", "plan-writer", { filePath: "src/app.ts" }),
+      /Outside allowed paths/,
+    )
+    await assert.rejects(
+      before(hooks, "edit", "plan-writer", { filePath: "src/app.ts" }),
+      /Outside allowed paths/,
+    )
+  })
+
   test("enforces allowed paths including glob patterns", async () => {
     const { hooks } = await setupRepo()
     await register(hooks, {

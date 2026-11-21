@@ -26,6 +26,7 @@ export type AgentType =
   | "conflict-resolver"
   | "version-analyzer"
   | "version-updater"
+  | "plan-writer"
 
 export interface AgentPermissions {
   type: AgentType
