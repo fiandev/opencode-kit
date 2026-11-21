@@ -37,8 +37,8 @@ Before finishing a change, run **both** `bun run typecheck` and `bun test`.
 ## Repository layout
 
 ```
-agents/             # 19 agent definitions (Markdown + YAML frontmatter)
-commands/           # slash-command definitions (/orchestration, /pr, /commit, ...)
+agents/             # 20 agent definitions (Markdown + YAML frontmatter)
+commands/           # slash-command definitions (/orchestration, /plan, /pr, /commit, ...)
 plugins/            # plugin source (bundled to dist/main.js by `bun run build`)
   main.ts           # source entry — thin barrel, no logic
   plugin.ts         # Plugin.define({ id, setup }) runtime wiring

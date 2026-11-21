@@ -18,7 +18,7 @@ The plugin will then BLOCK any unauthorized actions.`,
         "orchestrator", "analyst", "architect", "developer",
         "tester", "reviewer", "fixer", "merger", "security", "pentester", "typescript-engineer",
         "pr", "pr-reviewer", "pr-resolver", "conflict-resolver",
-        "version-analyzer", "version-updater"
+        "version-analyzer", "version-updater", "plan-writer"
       ]).describe("Type of agent"),
       worktree: tool.schema.string().optional().describe("Worktree path if applicable"),
       allowedPaths: tool.schema.array(tool.schema.string()).optional().describe("Paths the agent can edit (glob patterns)"),

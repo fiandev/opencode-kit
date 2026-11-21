@@ -19,6 +19,7 @@ type Tool = NonNullable<Hooks["tool"]>[string]
 /** Loosely-typed view of a tool so tests can call execute without Zod inference. */
 interface LooseTool {
   description: string
+  args?: any
   execute: (args: any, context?: any) => Promise<any>
 }
 
@@ -180,6 +181,42 @@ describe("agent permission enforcement", () => {
     )
     await assert.doesNotReject(
       before(hooks, "bash", "version-rw", { command: "git tag -a v1.0.1 -m v1.0.1" }),
+    )
+  })
+
+  test("scopes plan-writer to plan files while allowing writes", async () => {
+    const { hooks } = await setupRepo()
+
+    // `execute` bypasses the tool's `args` schema, so assert the public contract
+    // (the agentType enum) explicitly — otherwise dropping the enum entry would
+    // still let this test pass.
+    const agentType = getTool(hooks, "register_agent").args.agentType
+    assert.equal(agentType.safeParse("plan-writer").success, true)
+    assert.equal(agentType.safeParse("not-an-agent").success, false)
+
+    await register(hooks, {
+      sessionID: "plan-writer",
+      agentType: "plan-writer",
+      allowedPaths: [".opencode/plans/**", ".gitignore"],
+    })
+
+    // Not read-only: it must be able to create plan files.
+    await assert.doesNotReject(
+      before(hooks, "write", "plan-writer", { filePath: ".opencode/plans/demo/1-setup.md" }),
+    )
+    await assert.doesNotReject(
+      before(hooks, "edit", "plan-writer", { filePath: ".opencode/plans/demo/1-setup.md" }),
+    )
+    await assert.doesNotReject(before(hooks, "edit", "plan-writer", { filePath: ".gitignore" }))
+
+    // Everything outside the plan scope stays blocked.
+    await assert.rejects(
+      before(hooks, "write", "plan-writer", { filePath: "src/app.ts" }),
+      /Outside allowed paths/,
+    )
+    await assert.rejects(
+      before(hooks, "edit", "plan-writer", { filePath: "src/app.ts" }),
+      /Outside allowed paths/,
     )
   })
 
