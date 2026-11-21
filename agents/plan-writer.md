@@ -109,14 +109,15 @@ writing only inside `.opencode/plans/`.
 
 ## Input
 
-The input is a feature or task description. It may start with an explicit plan slug:
+The input is a feature or task description. It may start with an explicit plan slug, given as
+the first word followed by a colon:
 
 ```
-<plan-slug>: <feature description>
-/my-plan add dark mode to the settings page
+my-plan: add dark mode to the settings page
 ```
 
-- Explicit slug given → use it verbatim, normalized to kebab-case (`^[a-z0-9][a-z0-9-]*$`).
+- Explicit slug given (the word before the colon) → use it verbatim, normalized to kebab-case
+  (`^[a-z0-9][a-z0-9-]*$`).
 - No explicit slug → derive one from the description: 2–5 lowercase kebab-case words
   (`add-dark-mode`), no dates, no version numbers.
 - Empty input → print `Usage: /plan [<plan-slug>:] <feature or task description>` and stop
@@ -192,15 +193,18 @@ Rules:
 
 `.opencode/plans/` must never be committed.
 
-1. Check whether the path is already ignored:
+1. Confirm you are inside a git work tree: `git rev-parse --is-inside-work-tree` must exit `0`.
+   If it does not (not a git repository), report `Gitignore: skipped (not a git repository)`
+   and skip the remaining steps — never create a stray root `.gitignore`.
+2. Check whether the path is already ignored:
 
    ```bash
    git check-ignore -q .opencode/plans
    ```
 
-2. Exit status `0` → already covered (for example by an existing `.opencode` or
+3. Exit status `0` → already covered (for example by an existing `.opencode` or
    `.opencode/` rule). Do nothing. Never add a redundant line.
-3. Non-zero exit status → read `.gitignore` at the repository root (create it with `write` if it
+4. Non-zero exit status → read `.gitignore` at the repository root (create it with `write` if it
    does not exist) and append the single line:
 
    ```
@@ -208,9 +212,9 @@ Rules:
    ```
 
    Add it once, at the end of the file, preserving the existing content and trailing newline.
-4. Use `edit` or `write` for this change. **Never** append through bash redirection
+5. Use `edit` or `write` for this change. **Never** append through bash redirection
    (`>>`, `echo`, `printf`, `tee`) — redirection is denied and can clobber the file.
-5. Re-run `git check-ignore -q .opencode/plans` and confirm it now exits `0`.
+6. Re-run `git check-ignore -q .opencode/plans` and confirm it now exits `0`.
 
 ## Writing files
 
@@ -228,7 +232,7 @@ End with one block, nothing else:
 
 ```
 Plan: <plan-slug>
-Gitignore: already covered | added .opencode/plans/ to .gitignore | created .gitignore
+Gitignore: already covered | added .opencode/plans/ to .gitignore | created .gitignore | skipped (not a git repository)
 Files:
 .opencode/plans/<plan-slug>/1-<task-slug>.md
 .opencode/plans/<plan-slug>/2-<task-slug>.md
