@@ -64,6 +64,9 @@ npx @fiandev/opencode-kit install
 # Or install globally (all projects)
 npx @fiandev/opencode-kit install -g
 
+# Install without pinned models (agents follow your OpenCode default model)
+npx @fiandev/opencode-kit install --no-auto-model
+
 # Update existing installation
 npx @fiandev/opencode-kit update -g
 
@@ -581,6 +584,14 @@ model: opencode-go/gpt-6-luna   # $0.10 → $0.50 — even cheaper alternative
 ```
 
 Zero-cost options are available in the same catalog (for example `opencode-go/glm-5.3-flash-free` or `opencode-go/deepseek-v4.1-flash-free`), but they have tighter rate limits, so they are not used as defaults.
+
+To skip the pins entirely instead of editing each agent, pass `--no-auto-model`:
+
+```bash
+npx @fiandev/opencode-kit install --no-auto-model
+```
+
+This removes the `model:` frontmatter line from the installed copy of all 19 agents, including the primary orchestrator, so they follow your OpenCode default model. It works for `update` too, and affects only the installed copy — the shipped `agents/*.md` keep their pins. Re-running a plain `install` or `update` copies the pinned agents back, so re-run with the flag to un-pin them again. When the flag is used the CLI also prints `opencode-kit: removed model pins from N agent(s); installed agents now follow your OpenCode default model`.
 
 ## License
 

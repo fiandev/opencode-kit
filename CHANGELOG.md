@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `install --no-auto-model` (also accepted by `update`) installs all 19 agents, including the orchestrator, with the pinned `model:` frontmatter line removed so they follow your OpenCode default model; the shipped `agents/*.md` keep their pins, and a plain install/update re-copies them.
+
 ## [2.1.0] - 2026-11-13
 
 ### Added
