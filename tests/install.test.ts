@@ -13,7 +13,7 @@ import {
 } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { install } from "../installer/install"
+import { install, stripFrontmatterModel } from "../installer/install"
 
 const cleanups: string[] = []
 
@@ -29,12 +29,21 @@ function tempDir(prefix: string): string {
   return dir
 }
 
+/** Realistic LF agent file with a column-0 `model:` in the frontmatter. */
+const ORCHESTRATOR_SRC =
+  "---\ndescription: x\nmode: primary\nmodel: opencode-go/deepseek-v4.1-flash\ntemperature: 0.3\n---\n# orchestrator\n"
+
+/** Realistic CRLF agent file with a column-0 `model:` in the middle of the block. */
+const EXTRA_SRC =
+  "---\r\ndescription: extra\r\nmodel: opencode-go/another-model\r\nmode: subagent\r\n---\r\n# extra\r\n"
+
 /** Build a fake package root so tests never need a real dist/main.js in the repo. */
 function makePackageRoot(version = "9.9.9"): string {
   const root = tempDir("opencode-kit-install-src-")
 
   mkdirSync(join(root, "agents"), { recursive: true })
-  writeFileSync(join(root, "agents", "orchestrator.md"), "# orchestrator\n")
+  writeFileSync(join(root, "agents", "orchestrator.md"), ORCHESTRATOR_SRC)
+  writeFileSync(join(root, "agents", "extra.md"), EXTRA_SRC)
 
   mkdirSync(join(root, "commands"), { recursive: true })
   writeFileSync(join(root, "commands", "commit.md"), "# commit\n")
@@ -117,5 +126,134 @@ describe("install", () => {
     assert.ok(!lstatSync(join(targetDir, "commands")).isSymbolicLink())
     assert.ok(lstatSync(join(targetDir, "commands")).isDirectory())
     assert.ok(existsSync(join(targetDir, "commands", "commit.md")))
+  })
+})
+
+describe("install noAutoModel", () => {
+  test("strips model lines, keeps the rest of the frontmatter in order", () => {
+    const srcRoot = makePackageRoot()
+    const targetDir = tempDir("opencode-kit-install-target-")
+
+    const result = install({ srcRoot, targetDir, noAutoModel: true })
+
+    assert.equal(result.action, "installed")
+    assert.equal(result.strippedModels, 2)
+
+    const installed = readFileSync(join(targetDir, "agents", "orchestrator.md"), "utf-8")
+
+    // No column-0 `model:` line survives.
+    assert.doesNotMatch(installed, /^model:/m)
+    // Every other frontmatter line is present, in order, and the body is untouched.
+    assert.equal(
+      installed,
+      "---\ndescription: x\nmode: primary\ntemperature: 0.3\n---\n# orchestrator\n",
+    )
+  })
+
+  test("keeps model lines when noAutoModel is omitted", () => {
+    const srcRoot = makePackageRoot()
+    const targetDir = tempDir("opencode-kit-install-target-")
+
+    const result = install({ srcRoot, targetDir })
+
+    assert.equal(result.strippedModels, 0)
+
+    const orchestrator = readFileSync(join(targetDir, "agents", "orchestrator.md"), "utf-8")
+    const extra = readFileSync(join(targetDir, "agents", "extra.md"), "utf-8")
+
+    assert.match(orchestrator, /^model: opencode-go\/deepseek-v4\.1-flash$/m)
+    assert.match(extra, /^model: opencode-go\/another-model$/m)
+  })
+
+  test("strips a CRLF model line without leaving blank-line residue", () => {
+    const srcRoot = makePackageRoot()
+    const targetDir = tempDir("opencode-kit-install-target-")
+
+    install({ srcRoot, targetDir, noAutoModel: true })
+
+    const installed = readFileSync(join(targetDir, "agents", "extra.md"), "utf-8")
+
+    assert.equal(installed, "---\r\ndescription: extra\r\nmode: subagent\r\n---\r\n# extra\r\n")
+    assert.doesNotMatch(installed, /^model:/m)
+    assert.doesNotMatch(installed, /\r\n\r\n/)
+
+    // Every remaining line still ends with a CRLF.
+    for (const line of installed.split("\n").filter((value) => value.length > 0)) {
+      assert.ok(line.endsWith("\r"), `line missing CR: ${JSON.stringify(line)}`)
+    }
+  })
+
+  test("idempotent: a second run is a no-op that produces identical files", () => {
+    const srcRoot = makePackageRoot()
+    const targetDir = tempDir("opencode-kit-install-target-")
+
+    const first = install({ srcRoot, targetDir, noAutoModel: true })
+    assert.equal(first.strippedModels, 2)
+
+    const snapshot = (): string =>
+      readFileSync(join(targetDir, "agents", "orchestrator.md"), "utf-8") +
+      "\u0000" +
+      readFileSync(join(targetDir, "agents", "extra.md"), "utf-8")
+    const before = snapshot()
+
+    // Must not throw; a second copy+strip pass must land on identical bytes.
+    const second = install({ srcRoot, targetDir, noAutoModel: true })
+    assert.equal(second.action, "updated")
+
+    assert.equal(snapshot(), before)
+  })
+
+  test("follows a symlinked agents directory when stripping models", () => {
+    const srcRoot = makePackageRoot()
+    const targetDir = tempDir("opencode-kit-install-target-")
+    const realAgents = tempDir("opencode-kit-install-real-agents-")
+
+    symlinkSync(realAgents, join(targetDir, "agents"), "dir")
+
+    const result = install({ srcRoot, targetDir, noAutoModel: true })
+
+    assert.equal(result.strippedModels, 2)
+    assert.ok(lstatSync(join(targetDir, "agents")).isSymbolicLink())
+    assert.equal(realpathSync(join(targetDir, "agents")), realpathSync(realAgents))
+    assert.ok(existsSync(join(realAgents, "orchestrator.md")))
+    assert.doesNotMatch(readFileSync(join(realAgents, "orchestrator.md"), "utf-8"), /^model:/m)
+    assert.doesNotMatch(readFileSync(join(realAgents, "extra.md"), "utf-8"), /^model:/m)
+  })
+
+  test("leaves non-Markdown files in agents untouched", () => {
+    const srcRoot = makePackageRoot()
+    writeFileSync(join(srcRoot, "agents", "notes.txt"), "model: keep-me\n# notes\n")
+    const targetDir = tempDir("opencode-kit-install-target-")
+
+    const result = install({ srcRoot, targetDir, noAutoModel: true })
+
+    assert.equal(result.strippedModels, 2)
+    assert.equal(
+      readFileSync(join(targetDir, "agents", "notes.txt"), "utf-8"),
+      "model: keep-me\n# notes\n",
+    )
+  })
+})
+
+describe("stripFrontmatterModel", () => {
+  test("returns null when there is no frontmatter", () => {
+    assert.equal(stripFrontmatterModel("# heading\nmodel: nope\n"), null)
+  })
+
+  test("returns null when the frontmatter has no model line", () => {
+    assert.equal(stripFrontmatterModel("---\ndescription: x\n---\n# a\n"), null)
+  })
+
+  test("returns null when model appears only after the closing fence", () => {
+    assert.equal(stripFrontmatterModel("---\ndescription: x\n---\nmodel: y\n"), null)
+  })
+
+  test("returns null for an indented model line (column 0 only)", () => {
+    const content = "---\ndescription: x\n  model: y\n---\n# a\n"
+    assert.equal(stripFrontmatterModel(content), null)
+  })
+
+  test("returns null for an unclosed frontmatter block", () => {
+    assert.equal(stripFrontmatterModel("---\ndescription: x\nmodel: y\n"), null)
   })
 })
