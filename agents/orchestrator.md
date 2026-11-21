@@ -623,6 +623,7 @@ Task(
 | ------------------ | ------------------- | ------------------------------------------------------------------------- |
 | `analyst`          | Codebase Analysis   | Understanding project structure, finding relevant code                    |
 | `architect`        | Planning            | Creating task breakdown, file ownership, API contracts                    |
+| `plan-writer`      | Plan Writing        | Writing numbered plan files to `.opencode/plans/` (scoped write)          |
 | `developer`        | Implementation      | Writing code in worktrees                                                 |
 | `tester`           | Testing             | Running tests, verifying functionality                                    |
 | `reviewer`         | Code Review         | Checking quality, patterns, best practices                                |
@@ -632,6 +633,20 @@ Task(
 | `committer`        | Commit              | Staging explicit paths and writing Conventional Commits (asks first)      |
 | `version-analyzer` | Release Analysis    | Diffing HEAD against a local/remote tag and recommending the next version |
 | `version-updater`  | Release Apply       | Applying the approved version, changelog, release commit, and tag         |
+
+`plan-writer` is **not** read-only: it is a scoped-write agent that may only touch
+`.opencode/plans/**` and `.gitignore`. Before spawning it (for `/plan`), register those
+limits with `register_agent`:
+
+```
+register_agent(
+  sessionID: "<session_id>",
+  agentType: "plan-writer",
+  allowedPaths: [".opencode/plans/**", ".gitignore"]
+)
+```
+
+It writes the plan files only — never source files, never commits, never pushes.
 
 ---
 
