@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-11-21
+
 ### Added
 
 - `install --no-auto-model` (also accepted by `update`) installs all 20 agents, including the orchestrator, with the pinned `model:` frontmatter line removed so they follow your OpenCode default model; the shipped `agents/*.md` keep their pins, and a plain install/update re-copies them.
@@ -15,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   subtasks, a Files section, and a `Depends on` line, and ensures `.opencode/plans/` is listed in
   `.gitignore`. The agent is scoped-write: it may only modify `.opencode/plans/**` and
   `.gitignore` (registered via `allowedPaths`).
+- `plan-writer` is accepted by `register_agent` as an `agentType`, scoped to `.opencode/plans/**`
+  and `.gitignore` while keeping write access.
+
+### Changed
+
+- Shipped agent count is now 20 (README, AGENTS.md, and CHANGELOG corrected from 19).
+
+### Fixed
+
+- `--no-auto-model` stripping now skips symlinked agent files and handles model-only or multi-line frontmatter blocks, with contract tests for each edge case.
+- `plan-writer` no longer creates a stray root `.gitignore` when run outside a git work tree.
 
 ## [2.1.0] - 2026-11-13
 
@@ -106,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Worktree cleanup/done/blocked tools use direct filesystem and command execution instead of shell interpolation.
 - Read-only agents can no longer create or move tags.
 
-[Unreleased]: https://github.com/fiandev/opencode-kit/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/fiandev/opencode-kit/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/fiandev/opencode-kit/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/fiandev/opencode-kit/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/fiandev/opencode-kit/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/fiandev/opencode-kit/compare/v1.2.0...v2.0.0
