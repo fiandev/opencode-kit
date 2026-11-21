@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `install --no-auto-model` (also accepted by `update`) installs all 19 agents, including the orchestrator, with the pinned `model:` frontmatter line removed so they follow your OpenCode default model; the shipped `agents/*.md` keep their pins, and a plain install/update re-copies them.
+- `install --no-auto-model` (also accepted by `update`) installs all 20 agents, including the orchestrator, with the pinned `model:` frontmatter line removed so they follow your OpenCode default model; the shipped `agents/*.md` keep their pins, and a plain install/update re-copies them.
 - `/plan <description>` command backed by the new `plan-writer` subagent. It writes numbered plan
   files to `.opencode/plans/<plan-slug>/<n>-<task-slug>.md`, each with `- [ ]` checkbox
   subtasks, a Files section, and a `Depends on` line, and ensures `.opencode/plans/` is listed in
