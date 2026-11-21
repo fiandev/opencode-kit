@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `/plan <description>` command backed by the new `plan-writer` subagent. It writes numbered plan
+  files to `.opencode/plans/<plan-slug>/<n>-<task-slug>.md`, each with `- [ ]` checkbox
+  subtasks, a Files section, and a `Depends on` line, and ensures `.opencode/plans/` is listed in
+  `.gitignore`. The agent is scoped-write: it may only modify `.opencode/plans/**` and
+  `.gitignore` (registered via `allowedPaths`).
+
 ## [2.1.0] - 2026-11-13
 
 ### Added

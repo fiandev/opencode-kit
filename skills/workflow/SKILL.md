@@ -37,6 +37,7 @@ DEVELOPER 1    DEVELOPER 2    DEVELOPER 3
 | -------------- | -------------------------------------- |
 | **analyst**    | Understands codebase, finds patterns   |
 | **architecte** | Creates task breakdown, file ownership |
+| **plan-writer** | Writes plan files under `.opencode/plans/` |
 | **developer**  | Writes code in isolated worktrees      |
 | **tester**     | Runs tests, verifies functionality     |
 | **reviewer**   | Checks quality, best practices         |

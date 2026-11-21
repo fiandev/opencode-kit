@@ -2,7 +2,7 @@
 
 Parallel development orchestration plugin for [OpenCode](https://opencode.ai).
 
-Decompose complex tasks into parallelizable subtasks, each running in isolated git worktrees with dedicated AI subagents. Now with **19 specialized agents** and **hard constraints** enforced at the code level.
+Decompose complex tasks into parallelizable subtasks, each running in isolated git worktrees with dedicated AI subagents. Now with **20 specialized agents** and **hard constraints** enforced at the code level.
 
 ## What's New in v1.0.0
 
@@ -101,6 +101,7 @@ your-project/
 │   │   ├── analyst.md        # Codebase analysis (READ-ONLY)
 │   │   ├── architect.md      # Development planning (READ-ONLY)
 │   │   ├── planner.md        # Requirements and file ownership (READ-ONLY)
+│   │   ├── plan-writer.md    # Writes plan files under .opencode/plans/
 │   │   ├── developer.md      # Implements features
 │   │   ├── tester.md         # Tests before merge (READ-ONLY)
 │   │   ├── reviewer.md       # Code review (READ-ONLY)
@@ -154,6 +155,7 @@ Orchestrator: [Creates worktrees, spawns developers in parallel...]
 | Command           | Description                   |
 | ----------------- | ----------------------------- |
 | `/orchestration <task>` | Start parallel orchestration |
+| `/plan <description>` | Write numbered plan files to `.opencode/plans/` |
 | `/status`         | Show worktree status          |
 | `/visualize`      | ASCII dashboard               |
 | `/fix <worktree>` | Fix errors in a worktree      |
@@ -371,6 +373,7 @@ BLOCKED Path denied: package.json
 | analyst      | Yes  | No   | Yes (safe commands)    | `**/*`                               |
 | architect    | Yes  | No   | Yes (safe commands)    | `**/*`                               |
 | planner      | Yes  | No   | Yes (safe commands)    | `**/*`                               |
+| plan-writer  | Yes  | Yes  | Yes (safe commands)    | `.opencode/plans/**`, `.gitignore`   |
 | developer    | Yes  | Yes  | Yes                    | Assigned files only                  |
 | tester       | Yes  | No   | Yes (safe commands)    | `**/*`                               |
 | reviewer     | Yes  | No   | Yes (safe commands)    | `**/*`                               |
@@ -412,6 +415,7 @@ This prevents merge conflicts and ensures clean parallel development.
 | `analyst`      | subagent | READ-ONLY         | Analyzes codebase structure, dependencies, and patterns                   |
 | `architect`    | subagent | READ-ONLY         | Creates development plans with file ownership                             |
 | `planner`      | subagent | READ-ONLY         | Clarifies requirements and plans file ownership                           |
+| `plan-writer`  | subagent | Scoped Write      | Writes numbered plan files under `.opencode/plans/` (checkbox subtasks)   |
 | `developer`    | subagent | Scoped Write      | Implements tasks in isolated worktrees (constrained to owned files)       |
 | `tester`       | subagent | READ-ONLY         | Tests and validates code before merge                                     |
 | `reviewer`     | subagent | READ-ONLY         | Reviews code quality, suggests improvements                               |
@@ -565,7 +569,7 @@ Models are tuned for **cost efficiency first**. Every agent uses a low-cost mode
 | Tier | Model | Cost (in → out / 1M) | Agents |
 | --- | --- | --- | --- |
 | Core (code + reasoning) | `opencode-go/deepseek-v4.1-flash` | $0.30 → $1.20 | orchestrator, architect, developer, fixer, merger, pr, pr-resolver, conflict-resolver |
-| Fast (read-only, scanning) | `opencode-go/qwen3.8-flash` | $0.15 → $0.47 | analyst, planner, tester, reviewer, security, pentester, pr-reviewer |
+| Fast (read-only, plan writing, scanning) | `opencode-go/qwen3.8-flash` | $0.15 → $0.47 | analyst, planner, plan-writer, tester, reviewer, security, pentester, pr-reviewer |
 
 Model IDs come from the `opencode-go` provider catalog (`models.json`). Compared with `anthropic/claude-opus-4-5` ($5 → $25), the core tier is ~17× cheaper and the fast tier ~50× cheaper.
 
