@@ -7,7 +7,6 @@ import {
   readFileSync,
   realpathSync,
   rmSync,
-  statSync,
   writeFileSync,
 } from "node:fs"
 import { join } from "node:path"
@@ -116,7 +115,6 @@ export function install({ srcRoot, targetDir, noAutoModel }: InstallOptions): In
   // Real path of the installed agents directory, hoisted out of the copy loop so
   // the model stripping below follows symlinks exactly like the copy did.
   let agentsDest: string | null = null
-  let hasAgentsSource = false
 
   for (const folder of FOLDERS) {
     const src = join(srcRoot, folder)
@@ -125,18 +123,15 @@ export function install({ srcRoot, targetDir, noAutoModel }: InstallOptions): In
     const dest = prepareDestination(join(targetDir, folder))
     cpSync(src, dest, { recursive: true })
 
-    if (folder === "agents") {
-      agentsDest = dest
-      hasAgentsSource = true
-    }
+    if (folder === "agents") agentsDest = dest
   }
 
-  if (noAutoModel && hasAgentsSource && agentsDest !== null) {
+  if (noAutoModel && agentsDest !== null) {
     for (const entry of readdirSync(agentsDest)) {
       if (!entry.endsWith(".md")) continue
 
       const file = join(agentsDest, entry)
-      if (!statSync(file).isFile()) continue
+      if (!lstatSync(file).isFile()) continue
 
       const stripped = stripFrontmatterModel(readFileSync(file, "utf-8"))
       if (stripped === null) continue

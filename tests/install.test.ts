@@ -256,4 +256,16 @@ describe("stripFrontmatterModel", () => {
   test("returns null for an unclosed frontmatter block", () => {
     assert.equal(stripFrontmatterModel("---\ndescription: x\nmodel: y\n"), null)
   })
+
+  test("strips a frontmatter block that contains only a model line", () => {
+    assert.equal(stripFrontmatterModel("---\nmodel: x\n---\n# a\n"), "---\n---\n# a\n")
+  })
+
+  test("strips every column-0 model line in the block, keeping the rest intact", () => {
+    const content = "---\nmodel: a\ndescription: x\nmodel: b\ntemperature: 0.3\n---\n# a\n"
+    assert.equal(
+      stripFrontmatterModel(content),
+      "---\ndescription: x\ntemperature: 0.3\n---\n# a\n",
+    )
+  })
 })
