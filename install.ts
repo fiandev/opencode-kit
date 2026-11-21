@@ -8,6 +8,7 @@
  *   npx @fiandev/opencode-kit install -g     # Install globally (~/.config/opencode/)
  *   npx @fiandev/opencode-kit update         # Update in current project (alias for install)
  *   npx @fiandev/opencode-kit update -g      # Update globally (alias for install -g)
+ *   npx @fiandev/opencode-kit install --no-auto-model  # Install without pinned agent models
  *   npx @fiandev/opencode-kit version        # Show version
  */
 
@@ -24,6 +25,7 @@ type PackageJson = { version: string }
 const args = process.argv.slice(2)
 const command = args[0]
 const isGlobal = args.includes("-g") || args.includes("--global")
+const noAutoModel = args.includes("--no-auto-model")
 
 // Handle version command
 if (command === "version" || command === "-v" || command === "--version") {
@@ -40,6 +42,7 @@ opencode-kit - Multi-Agent Dev plugin for OpenCode
 Usage:
   npx @fiandev/opencode-kit install        Install to current project (.opencode/)
   npx @fiandev/opencode-kit install -g     Install globally (~/.config/opencode/)
+  npx @fiandev/opencode-kit install --no-auto-model   Install without pinned agent models (agents follow your OpenCode default)
   npx @fiandev/opencode-kit update         Update in current project (alias for install)
   npx @fiandev/opencode-kit update -g      Update globally (alias for install -g)
   npx @fiandev/opencode-kit version        Show version
@@ -54,9 +57,14 @@ const targetDir = isGlobal
   : join(process.cwd(), ".opencode")
 
 try {
-  const { action, version } = install({ srcRoot: __dirname, targetDir })
+  const { action, version, strippedModels } = install({ srcRoot: __dirname, targetDir, noAutoModel })
   const location = isGlobal ? "~/.config/opencode" : ".opencode"
   console.log(`opencode-kit v${version} ${action} to ${location}`)
+  if (noAutoModel) {
+    console.log(
+      `opencode-kit: removed model pins from ${strippedModels} agent(s); installed agents now follow your OpenCode default model`,
+    )
+  }
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error))
   process.exit(1)
