@@ -1,23 +1,64 @@
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, rmSync } from "node:fs"
+import {
+  cpSync,
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs"
 import { join } from "node:path"
 
 const FOLDERS = ["agents", "commands", "skills"] as const
 const MAX_SYMLINK_HOPS = 40
 
+const FRONTMATTER_OPEN = /^---\r?\n/
+const FRONTMATTER_CLOSE = /^---\r?$/m
+const MODEL_LINE = /^model:[^\r\n]*(\r?\n|$)/gm
+
 export interface InstallOptions {
   srcRoot: string
   targetDir: string
+  noAutoModel?: boolean
 }
 
 export interface InstallResult {
   action: "installed" | "updated"
   version: string
+  strippedModels: number
 }
 
 type PackageJson = { version: string }
 
 function isMissing(error: unknown): boolean {
   return (error as NodeJS.ErrnoException | undefined)?.code === "ENOENT"
+}
+
+/**
+ * Remove `model:` lines from the first YAML frontmatter block of a Markdown file.
+ *
+ * Returns `null` when there is nothing to strip: no frontmatter, an unclosed
+ * frontmatter block, or no top-level (column-0) `model:` line inside it.
+ * Content outside the block is preserved byte-for-byte, and a second pass over
+ * the result returns `null`.
+ */
+export function stripFrontmatterModel(content: string): string | null {
+  const open = FRONTMATTER_OPEN.exec(content)
+  if (!open) return null
+
+  const bodyStart = open[0].length
+  const rest = content.slice(bodyStart)
+  const close = FRONTMATTER_CLOSE.exec(rest)
+  if (!close) return null
+
+  const body = rest.slice(0, close.index)
+  const stripped = body.replace(MODEL_LINE, "")
+  if (stripped === body) return null
+
+  return content.slice(0, bodyStart) + stripped + rest.slice(close.index)
 }
 
 /**
@@ -61,7 +102,7 @@ function prepareDestination(dest: string): string {
   throw new Error(`opencode-kit: ${shown} has too many levels of symbolic links`)
 }
 
-export function install({ srcRoot, targetDir }: InstallOptions): InstallResult {
+export function install({ srcRoot, targetDir, noAutoModel }: InstallOptions): InstallResult {
   const pluginSource = join(srcRoot, "dist")
 
   if (!existsSync(pluginSource)) {
@@ -71,12 +112,38 @@ export function install({ srcRoot, targetDir }: InstallOptions): InstallResult {
   const isUpdate = [...FOLDERS, "plugins"].some((folder) => existsSync(join(targetDir, folder)))
   const pkg: PackageJson = JSON.parse(readFileSync(join(srcRoot, "package.json"), "utf-8"))
 
+  let strippedModels = 0
+  // Real path of the installed agents directory, hoisted out of the copy loop so
+  // the model stripping below follows symlinks exactly like the copy did.
+  let agentsDest: string | null = null
+  let hasAgentsSource = false
+
   for (const folder of FOLDERS) {
     const src = join(srcRoot, folder)
     if (!existsSync(src)) continue
 
     const dest = prepareDestination(join(targetDir, folder))
     cpSync(src, dest, { recursive: true })
+
+    if (folder === "agents") {
+      agentsDest = dest
+      hasAgentsSource = true
+    }
+  }
+
+  if (noAutoModel && hasAgentsSource && agentsDest !== null) {
+    for (const entry of readdirSync(agentsDest)) {
+      if (!entry.endsWith(".md")) continue
+
+      const file = join(agentsDest, entry)
+      if (!statSync(file).isFile()) continue
+
+      const stripped = stripFrontmatterModel(readFileSync(file, "utf-8"))
+      if (stripped === null) continue
+
+      writeFileSync(file, stripped)
+      strippedModels++
+    }
   }
 
   const pluginTarget = prepareDestination(join(targetDir, "plugins"))
@@ -93,5 +160,5 @@ export function install({ srcRoot, targetDir }: InstallOptions): InstallResult {
 
   cpSync(pluginSource, pluginTarget, { recursive: true })
 
-  return { action: isUpdate ? "updated" : "installed", version: pkg.version }
+  return { action: isUpdate ? "updated" : "installed", version: pkg.version, strippedModels }
 }
